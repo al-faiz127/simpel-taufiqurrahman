@@ -60,7 +60,6 @@ class JenisPelatihanResource extends Resource
                     ->limit(50)
                     ->wrap()
                     ->searchable()
-                    ->sortable()
                     ->grow(),
             ])
             ->filters([

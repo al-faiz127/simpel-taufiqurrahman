@@ -19,7 +19,7 @@ class BentukPelatihanResource extends Resource
 {
     protected static ?string $model = BentukPelatihan::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-swatch';
 
     protected static ?string $navigationGroup = 'Data';
     protected static ?string $navigationLabel = 'Bentuk pelatihan';
@@ -63,8 +63,7 @@ class BentukPelatihanResource extends Resource
                     ->label('Deskripsi')
                     ->limit(50)
                     ->wrap()
-                    ->searchable()
-                    ->grow(),
+                    ->searchable(),
             ]) 
             ->defaultSort('id','asc')
             ->defaultGroup('jalur')
