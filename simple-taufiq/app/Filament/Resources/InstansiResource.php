@@ -3,7 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\InstansiResource\Pages;
-use App\Models\instansi;
+use App\Models\Instansi;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -12,7 +12,7 @@ use Filament\Tables\Table;
 
 class InstansiResource extends Resource
 {
-    protected static ?string $model = instansi::class;
+    protected static ?string $model = Instansi::class;
     protected static ?string $navigationIcon = 'heroicon-o-building-office';
     protected static ?string $navigationGroup = 'Data';
     protected static ?string $navigationLabel = 'Instansi';

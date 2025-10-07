@@ -4,7 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\SasaranResource\Pages;
 use App\Filament\Resources\SasaranResource\RelationManagers;
-use App\Models\sasaran;
+use App\Models\Sasaran;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class SasaranResource extends Resource
 {
-    protected static ?string $model = sasaran::class;
+    protected static ?string $model = Sasaran::class;
 
     protected static ?string $navigationIcon = 'phosphor-crosshair';
 

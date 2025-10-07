@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class JenisPelatihanResource extends Resource
 {
-    protected static ?string $model = jenis_pelatihan::class;
+    protected static ?string $model = JenisPelatihan::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
 

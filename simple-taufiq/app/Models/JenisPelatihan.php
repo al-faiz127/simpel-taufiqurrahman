@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 
 use Illuminate\Database\Eloquent\Model;
 
-class jenis_pelatihan extends Model
+class JenisPelatihan extends Model
 {
     use HasUlids;
 

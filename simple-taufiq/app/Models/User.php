@@ -7,9 +7,11 @@ namespace App\Models;
 use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
 use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable implements FilamentUser
 {
@@ -26,6 +28,11 @@ class User extends Authenticatable implements FilamentUser
         'name',
         'email',
         'password',
+        'instansi_id',
+        'phone',
+        'satuan',
+        'username',
+        'verified_at',
     ];
 
     /**
@@ -38,6 +45,7 @@ class User extends Authenticatable implements FilamentUser
         'remember_token',
     ];
 
+
     /**
      * Get the attributes that should be cast.
      *
@@ -49,5 +57,10 @@ class User extends Authenticatable implements FilamentUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function instansi(): BelongsTo
+    {
+      return $this->belongsTo(Instansi::class);
     }
 }
