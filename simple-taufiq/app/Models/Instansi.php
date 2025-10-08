@@ -19,4 +19,7 @@ class Instansi extends Model
     {
         return $this->hasMany(User::class);
     }
+    public  function bangkom(): HasMany {
+        return $this->hasMany(Bangkom::class);
+    }
 }

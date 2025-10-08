@@ -7,6 +7,7 @@ namespace App\Models;
 use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
 use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -58,6 +59,19 @@ class User extends Authenticatable implements FilamentUser
             'password' => 'hashed',
         ];
     }
+    // protected function handleRegistration(array $data): Model
+    // {
+    //     $user = $this->getUserModel()::create($data);
+
+    //     $data['role'] = 'pelaksana'; // make it static
+
+    //     /** Make sure role exists */
+    //     Role::firstOrCreate(['name' => $data['role']]);
+
+    //     $user->assignRole($data['role']);
+
+    //     return $user;
+    // }
 
     public function instansi(): BelongsTo
     {

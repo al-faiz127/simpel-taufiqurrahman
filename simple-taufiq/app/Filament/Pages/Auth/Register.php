@@ -12,6 +12,8 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Forms\FormsComponent;
+use Illuminate\Database\Eloquent\Model;
+
 use Filament\Pages\Auth\Register as BaseRegister;
 
 class Register extends BaseRegister
@@ -23,8 +25,7 @@ class Register extends BaseRegister
             'form' => $this->form(
                 $this->makeForm()
                     ->schema([
-                        Forms\Components\Hidden::make('role')
-                            ->default('pelaksana'),  
+                        $this->getRoleFormComponent(),
                         $this->getnama(),
                         $this->getintansi(),
                         $this->getsatuan(),
@@ -41,13 +42,23 @@ class Register extends BaseRegister
         ];
     }
 
-    // protected function getRoleFormComponent(): Component
-    // {
-    //     return Select::make('role')
-    //         ->options(Role::pluck('name', 'name'))
-            
-    //         ->required();
-    // }
+    protected function getRoleFormComponent(): Component
+    {
+        return Forms\Components\Hidden::make('role')
+                            ->default('pelaksana');
+    }
+    protected function handleRegistration(array $data): Model
+    {
+        $user = $this->getUserModel()::create($data);
+
+        $data['role'] = 'pelaksana'; 
+
+        Role::firstOrCreate(['name' => $data['role']]);
+
+        $user->assignRole($data['role']);
+
+        return $user;
+    }
     protected function getnama(): Component
     {
         return Forms\Components\TextInput::make('name')

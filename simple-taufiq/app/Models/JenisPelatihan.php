@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 
 use Illuminate\Database\Eloquent\Model;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
 class JenisPelatihan extends Model
 {
     use HasUlids;
@@ -13,4 +17,8 @@ class JenisPelatihan extends Model
     protected $table = 'jenis_pelatihan';
 
     protected $fillable = ['jenis', 'deskripsi'];
+    
+    public function bangkom(): HasMany {
+        return $this->hasMany(Bangkom::class);
+    }
 }
