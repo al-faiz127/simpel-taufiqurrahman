@@ -20,6 +20,7 @@ class Bangkom extends Model
 
     protected $fillable = [
         'user_id',
+        'instansi_id',
         'unit',
         'kegiatan',
         'jenis_pelatihan_id',
@@ -30,14 +31,18 @@ class Bangkom extends Model
         'tempat',
         'kuota',
         'panitia',
+        'tlpnpanitia',
         'narasumber',
         'materi',
         'jam',
         'deskripsi',
         'persyaratan',
+        'status',
 
     ];
-
+    public function user(){
+        return $this->belongsTo(\App\Models\User::class);
+    }
     public function instansi(): BelongsTo {
         return $this->belongsTo(Instansi::class);
     }
@@ -50,4 +55,6 @@ class Bangkom extends Model
     public function sasaran():BelongsTo{
         return $this->belongsTo(Sasaran::class);
     }
+
+
 }

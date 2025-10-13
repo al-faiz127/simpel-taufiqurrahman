@@ -68,7 +68,9 @@ class InstansiResource extends Resource
 {
         return $table
             ->columns([
-                
+                Tables\Columns\TextColumn::make('no')
+                    ->label('No')
+                    ->rowIndex(),
                 Tables\Columns\TextColumn::make('nama')
                     ->label('Nama')
                     ->description(fn ($record) => $record->alamat ? 'Alamat: ' . $record->alamat : 'Alamat: -') 

@@ -43,6 +43,9 @@ class BidangResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('no')
+                    ->label('No')
+                    ->rowIndex(),
                 Tables\Columns\TextColumn::make('bidang')
                     ->searchable()
                     ->sortable(),

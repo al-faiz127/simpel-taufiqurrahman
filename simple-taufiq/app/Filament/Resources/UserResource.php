@@ -76,6 +76,7 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('roles.name')
                     ->label('Role')
                     ->sortable()
+                    ->badge()
                     ->searchable()
                     ->wrap(),
                 Tables\Columns\TextColumn::make('verified_at')

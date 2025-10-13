@@ -69,6 +69,9 @@ class WidyaiswaraResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('no')
+                    ->label('No')
+                    ->rowIndex(),
                 Tables\Columns\TextColumn::make('nip')
                     ->label('NIP')
                     ->sortable()

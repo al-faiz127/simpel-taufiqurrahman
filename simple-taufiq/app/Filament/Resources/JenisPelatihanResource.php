@@ -49,7 +49,9 @@ class JenisPelatihanResource extends Resource
     {
         return $table
             ->columns([
-
+                Tables\Columns\TextColumn::make('no')
+                    ->label('No')
+                    ->rowIndex(),
                 Tables\Columns\TextColumn::make('jenis')
                     ->label('Jenis Pelatihan')
                     ->searchable()

@@ -9,4 +9,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateBangkom extends CreateRecord
 {
     protected static string $resource = BangkomResource::class;
+    protected function getFormActions(): array
+    {
+        return [
+        ];
+    }
 }
