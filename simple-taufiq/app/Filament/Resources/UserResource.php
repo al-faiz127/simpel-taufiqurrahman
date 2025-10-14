@@ -102,7 +102,40 @@ class UserResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('verified_at')
+                        ->label('Verifikasi')
+                        ->icon('heroicon-o-check-badge')
+                        ->color('success')
+                        ->hidden(fn(User $record) => $record->verified_at !== null)
+                        ->requiresConfirmation()
+                        ->modalHeading('Verifikasi')
+                        ->modalDescription('Apakah Anda yakin ingin memverifikasi user ini?')
+                        ->modalSubmitActionLabel('Ya, Verifikasi')
+                        ->action(function (User $record) {
+                            $record->update([
+                                'verified_at' => now(),
+                            ]);
+                        }),
+                    Tables\Actions\Action::make('verified_at_cancel')
+                        ->label('Batalkan Verifikasi')
+                        ->icon('heroicon-o-x-circle')
+                        ->color('danger')
+                        ->hidden(fn(User $record) => $record->verified_at === null)
+                        ->requiresConfirmation()
+                        ->modalHeading('Batalkan Verifikasi')
+                        ->modalDescription('Apakah Anda yakin ingin membatalkan verifikasi user ini?')
+                        ->modalSubmitActionLabel('Ya, Batalkan')
+                        ->action(function (User $record) {
+                            $record->update([
+                                'verified_at' => null,
+                            ]);
+                        }),
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make()
+                        ->color('gray'),
+                    Tables\Actions\DeleteAction::make(),
+                    ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

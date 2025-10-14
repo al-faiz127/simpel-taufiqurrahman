@@ -23,6 +23,7 @@ use GuzzleHttp\Psr7\FnStream;
 use Awcodes\TableRepeater\Components\TableRepeater;
 use Awcodes\TableRepeater\Header;
 use Illuminate\Support\Carbon;
+use Filament\Notifications\Notification;
 
 class BangkomResource extends Resource
 {
@@ -170,7 +171,8 @@ class BangkomResource extends Resource
                             Submit
                         </button>
                     '))
-                ->columnSpanFull(),
+                ->columnSpanFull()
+                ->skippable(),
             ]);
     }
 
@@ -211,7 +213,69 @@ class BangkomResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ActionGroup::make([
+                Tables\Actions\Action::make('DokumenPermohonan')
+                        ->label('Dokumen Permohonan')
+                        ->icon('heroicon-o-document')
+                        ->color('gray')
+                        ->modalHeading('Ajukan Permohonan')
+                        ->form([
+                            Forms\Components\FileUpload::make('file_permohonan')
+                                ->label('File Permohonan')
+                                ->required()
+                                ->acceptedFileTypes([
+                                    'application/pdf',
+                                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                                    'application/msword',
+                                    'application/vnd.ms-excel',
+                                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                                    'application/vnd.ms-powerpoint',
+                                    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                                    'image/jpeg',
+                                    'image/png',
+                                ])
+                                ->maxSize(102400)
+                                ->helperText('*Ukuran file maksimum: 100MB. Format yang diijinkan: PDF, DOCX, XLSX, PPTX, JPEG.')
+                                ->directory('permohonan')
+                                ->visibility('private')
+                                ->downloadable()
+                                ->openable()
+                                ->previewable(),
+                        ])
+                        ->modalSubmitAction(false)
+                        ->modalCancelActionLabel('Tutup')
+                        // ->visible(fn(Bangkom $record): bool => $record->status === BangkomStatus::Draft)
+                        ->action(function (Bangkom $record, array $data) {
+                            $record->update([
+                                'status' => BangkomStatus::MenungguVerifikasi,
+                                'file_permohonan' => $data['file_permohonan'],
+                            ]);
+                        }),
+                Tables\Actions\EditAction::make()
+                    ->label('Edit')
+                    ->modalWidth('lg'),
+                Tables\Actions\DeleteAction::make()
+                    ->label('Hapus')
+                    ->modalWidth('md')
+                    ->requiresConfirmation(),
+                Tables\Actions\Action::make('forceDelete')
+                        ->label('Force Delete')
+                        ->icon('heroicon-o-trash')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->modalHeading('Hapus Permanen')
+                        ->modalDescription('Apakah Anda yakin ingin menghapus data ini secara permanen?')
+                        ->modalSubmitActionLabel('Ya, Hapus')
+                        ->action(function (Bangkom $record) {
+                            $record->forceDelete();
+
+                            Notification::make()
+                                ->title('Data berhasil dihapus permanen')
+                                ->success()
+                                ->send();
+                        }),
+            ]),
+            
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
