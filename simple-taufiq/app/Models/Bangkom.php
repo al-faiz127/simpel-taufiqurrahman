@@ -28,6 +28,7 @@ class Bangkom extends Model
         'sasaran_id',
         'mulai',
         'selesai',
+        'alamat',
         'tempat',
         'kuota',
         'panitia',
@@ -40,21 +41,30 @@ class Bangkom extends Model
         'status',
 
     ];
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(\App\Models\User::class);
     }
-    public function instansi(): BelongsTo {
+    public function instansi(): BelongsTo
+    {
         return $this->belongsTo(Instansi::class);
     }
-    public function jenis_pelatihan(): BelongsTo{
+    public function jenis_pelatihan(): BelongsTo
+    {
         return $this->belongsTo(JenisPelatihan::class);
     }
-    public function bentuk_pelatihan(): BelongsTo{
+    public function bentuk_pelatihan(): BelongsTo
+    {
         return $this->belongsTo(BentukPelatihan::class);
     }
-    public function sasaran():BelongsTo{
+    public function sasaran(): BelongsTo
+    {
         return $this->belongsTo(Sasaran::class);
     }
-
-
+    protected $casts = [
+        'kurikulum' => 'array',
+        'mulai' => 'date',
+        'selesai' => 'date',
+        'status' => \App\Enums\BangkomStatus::class,
+    ];
 }

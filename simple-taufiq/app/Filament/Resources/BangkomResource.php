@@ -260,6 +260,57 @@ class BangkomResource extends Resource
                         ->label('Hapus')
                         ->modalWidth('md')
                         ->requiresConfirmation(),
+                    Tables\Actions\Action::make('ubahStatus')
+                        ->label('Ubah Status')
+                        ->icon('heroicon-o-arrow-path')
+                        ->modalHeading('Ubah Status')
+                        ->modalDescription('Are you sure you would like to do this?')
+                        ->form([
+                            Forms\Components\Select::make('status')
+                                ->label('Status')
+                                ->options([
+                                    BangkomStatus::Draft->value => 'draft',
+                                    BangkomStatus::MenungguVerifikasi->value => 'Menunggu Verifikasi I',
+                                    BangkomStatus::Pengelolaan->value => 'Pengolalaan',
+                                    BangkomStatus::MenungguVerifikasiII->value => 'Menunggu Verifikasi II',
+                                    BangkomStatus::TerbitSTTP->value => 'Terbit STTP',
+                                ])
+                                ->default(fn(Bangkom $record): string => $record->status->value)
+                                ->required()
+                                ->native(false)
+                                ->selectablePlaceholder(false),
+                            Forms\Components\Textarea::make('catatan')
+                                ->label('Catatan')
+                                ->rows(3)
+                                ->helperText('Conton Permintaan perbaikan usulan dan operator.'),
+                        ])
+                        ->requiresConfirmation()
+                        ->action(function (Bangkom $record, array $data) {
+                            $oldStatus = $record->status;
+                            $newStatus = BangkomStatus::from($data['status']);
+
+                            $record->update([
+                                'status' => $newStatus,
+                                // 'catatan' => $data['catatan'],
+                            ]);
+
+                            // \App\Models\HistoriStatus::where('bangkom_id', $record->id)
+                            //     ->where('catatan', 'Pengajuan Permohonan')
+                            //     ->first();
+
+                            // $record->historiStatuses()->create([
+                            //     'users_id' => Auth::id(),
+                            //     'oleh' => Auth::user()->name,
+                            //     'status_sebelum' => $oldStatus->value,
+                            //     'status_menjadi' => $newStatus->value,
+                            //     'catatan' => 'Pengajuan Permohonan',
+                            // ]);
+                            Notification::make()
+                                ->title('Status berhasil diubah')
+                                ->body("Status diubah dari {$oldStatus->getLabel()} menjadi {$newStatus->getLabel()}")
+                                ->success()
+                                ->send();
+                        }),
                     Tables\Actions\Action::make('forceDelete')
                         ->label('Force Delete')
                         ->icon('heroicon-o-trash')
@@ -276,6 +327,8 @@ class BangkomResource extends Resource
                                 ->success()
                                 ->send();
                         }),
+                        Tables\Actions\ViewAction::make(),
+
                 ]),
 
             ])
@@ -299,6 +352,7 @@ class BangkomResource extends Resource
             'index' => Pages\ListBangkoms::route('/'),
             'create' => Pages\CreateBangkom::route('/create'),
             'edit' => Pages\EditBangkom::route('/{record}/edit'),
+            'view' => Pages\ViewBangkom::route('/{record}'),
         ];
     }
 }
