@@ -11,6 +11,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -54,6 +55,7 @@ class JenisPelatihanResource extends Resource
                     ->rowIndex(),
                 Tables\Columns\TextColumn::make('jenis')
                     ->label('Jenis Pelatihan')
+                    ->description(fn(JenisPelatihan $record): string => 'Slug : /' . Str::slug($record->jenis))
                     ->searchable()
                     ->sortable(),
 

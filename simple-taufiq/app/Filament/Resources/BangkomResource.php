@@ -45,11 +45,13 @@ class BangkomResource extends Resource
                     Wizard\Step::make('kegiatan')
                         ->schema([
                             Select::make('user_id')
-                                ->label('pelaksana')
+                                ->label('Pelaksana')
                                 ->relationship(
                                     name: 'user',
                                     titleAttribute: 'name',
-                                    modifyQueryUsing: fn($query) => $query->whereHas('roles', fn($q) => $q->where('name', 'pelaksana'))
+                                    modifyQueryUsing: fn($query) =>$query
+                                        ->whereHas('roles', fn($q) => $q->where('name', 'pelaksana'))
+                                        ->whereNotNull('verified_at')
                                 )
                                 ->searchable()
                                 ->preload()
@@ -162,7 +164,7 @@ class BangkomResource extends Resource
                         ]),
 
                 ])
-                ->submitAction(new \Illuminate\Support\HtmlString('
+                    ->submitAction(new \Illuminate\Support\HtmlString('
                         <button 
                             type="submit" 
                             wire:click="create"
@@ -171,8 +173,8 @@ class BangkomResource extends Resource
                             Submit
                         </button>
                     '))
-                ->columnSpanFull()
-                ->skippable(),
+                    ->columnSpanFull()
+                    ->skippable(),
             ]);
     }
 
@@ -214,7 +216,7 @@ class BangkomResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
-                Tables\Actions\Action::make('DokumenPermohonan')
+                    Tables\Actions\Action::make('DokumenPermohonan')
                         ->label('Dokumen Permohonan')
                         ->icon('heroicon-o-document')
                         ->color('gray')
@@ -251,14 +253,14 @@ class BangkomResource extends Resource
                                 'file_permohonan' => $data['file_permohonan'],
                             ]);
                         }),
-                Tables\Actions\EditAction::make()
-                    ->label('Edit')
-                    ->modalWidth('lg'),
-                Tables\Actions\DeleteAction::make()
-                    ->label('Hapus')
-                    ->modalWidth('md')
-                    ->requiresConfirmation(),
-                Tables\Actions\Action::make('forceDelete')
+                    Tables\Actions\EditAction::make()
+                        ->label('Edit')
+                        ->modalWidth('lg'),
+                    Tables\Actions\DeleteAction::make()
+                        ->label('Hapus')
+                        ->modalWidth('md')
+                        ->requiresConfirmation(),
+                    Tables\Actions\Action::make('forceDelete')
                         ->label('Force Delete')
                         ->icon('heroicon-o-trash')
                         ->color('danger')
@@ -274,8 +276,8 @@ class BangkomResource extends Resource
                                 ->success()
                                 ->send();
                         }),
-            ]),
-            
+                ]),
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

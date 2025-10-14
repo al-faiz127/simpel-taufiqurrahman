@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -20,5 +21,13 @@ class JenisPelatihan extends Model
     
     public function bangkom(): HasMany {
         return $this->hasMany(Bangkom::class);
+    }
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($post) {
+            $post->slug = Str::slug($post->nama);
+        });
     }
 }
