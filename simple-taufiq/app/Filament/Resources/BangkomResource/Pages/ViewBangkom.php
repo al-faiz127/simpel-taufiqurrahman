@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Textarea;
 use Filament\Resources\Pages\ViewRecord;
@@ -24,7 +25,6 @@ class ViewBangkom extends ViewRecord
     {
         return $form
             ->schema([
-                // ====== Bagian KEGIATAN ======
                 Section::make('Kegiatan')
                     ->schema([
                         Select::make('user_id')
@@ -70,7 +70,7 @@ class ViewBangkom extends ViewRecord
                     ->collapsible()
                     ->inlineLabel(),
 
-                // ====== Bagian WAKTU & TEMPAT ======
+
                 Section::make('Waktu, Tempat dan Kuota')
                     ->schema([
                         DatePicker::make('mulai')
@@ -107,7 +107,7 @@ class ViewBangkom extends ViewRecord
                     ->collapsible()
                     ->inlineLabel(),
 
-                // ====== Bagian PANITIA ======
+
                 Section::make('Panitia')
                     ->schema([
                         TextInput::make('panitia')
@@ -124,10 +124,11 @@ class ViewBangkom extends ViewRecord
                     ->collapsible()
                     ->inlineLabel(),
 
-                // ====== Bagian KURIKULUM ======
-                Section::make('Kurikulum')
+                Section::make('kurikulum')
                     ->schema([
-                        TableRepeater::make('kurikulum')
+                        
+                        Repeater::make('kurikulum')
+                        ->default([])
                             ->schema([
                                 TextInput::make('narasumber')
                                     ->disabled(),
@@ -141,12 +142,11 @@ class ViewBangkom extends ViewRecord
                             ->addable(false)
                             ->deletable(false)
                             ->reorderable(false)
-                            ->defaultItems(0)
-                            ->columnSpanFull(),
+                            ->columnSpanFull()
+                            ->columns(3)
                     ])
                     ->collapsible(),
 
-                // ====== Bagian DESKRIPSI ======
                 Section::make('Deskripsi Kegiatan & Persyaratan')
                     ->schema([
                         Textarea::make('deskripsi')

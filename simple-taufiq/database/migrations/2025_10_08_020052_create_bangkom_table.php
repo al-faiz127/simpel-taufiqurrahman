@@ -27,9 +27,7 @@ return new class extends Migration
             $table->string('kuota')->nullable();
             $table->string('panitia')->nullable();
             $table->string('tlpnpanitia')->nullable();
-            $table->string('narasumber')->nullable();
-            $table->string('materi')->nullable();
-            $table->string('jam')->nullable();
+            $table->json('kurikulum')->nullable();
             $table->string('deskripsi')->nullable();
             $table->string('persyaratan')->nullable();
             $table->string('status')->default('draft');
