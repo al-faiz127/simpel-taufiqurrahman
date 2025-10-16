@@ -65,4 +65,8 @@ class Bangkom extends Model
         'selesai' => 'date',
         'status' => \App\Enums\BangkomStatus::class,
     ];
+    public function histori(): HasMany
+    {
+        return $this->hasMany(Histori::class);
+    }
 }

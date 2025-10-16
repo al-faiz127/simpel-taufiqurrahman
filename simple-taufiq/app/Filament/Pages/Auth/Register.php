@@ -8,7 +8,10 @@ use Filament\Forms\Components\Component;
 use Filament\Forms\Components\Select;
 use Filament\Forms;
 use App\Models\Instansi;
+use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Notifications\Notification;
+use Filament\Http\Responses\Auth\Contracts\RegistrationResponse;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Forms\FormsComponent;
@@ -34,8 +37,7 @@ class Register extends BaseRegister
                         $this->gettlpn(),
                         $this->getPasswordFormComponent(),
                         $this->getPasswordConfirmationFormComponent(),
-                        
-                        
+
                     ])
                     ->statePath('data'),
             ),
@@ -45,13 +47,13 @@ class Register extends BaseRegister
     protected function getRoleFormComponent(): Component
     {
         return Forms\Components\Hidden::make('role')
-                            ->default('pelaksana');
+            ->default('pelaksana');
     }
     protected function handleRegistration(array $data): Model
     {
         $user = $this->getUserModel()::create($data);
 
-        $data['role'] = 'pelaksana'; 
+        $data['role'] = 'pelaksana';
 
         Role::firstOrCreate(['name' => $data['role']]);
 
@@ -96,7 +98,24 @@ class Register extends BaseRegister
             ->required()
             ->maxLength(255);
     }
-    
+    public function register(): ?RegistrationResponse
+    {
+        $data = $this->form->getState();
+
+        $user = $this->handleRegistration($data);
+
+        Notification::make()
+            ->title('Registrasi Berhasil!')
+            ->body('Akun Anda telah terdaftar. Silakan tunggu verifikasi dari admin untuk dapat login.')
+            ->success()
+            ->duration(10000)
+            ->send();
+
+        $this->redirect(route('filament.admin.auth.login'));
+
+        return null;
+    }
+
 
     // protected static string $view = 'filament.pages.auth.register';
 }

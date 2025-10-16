@@ -22,12 +22,4 @@ class JenisPelatihan extends Model
     public function bangkom(): HasMany {
         return $this->hasMany(Bangkom::class);
     }
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($post) {
-            $post->slug = Str::slug($post->nama);
-        });
-    }
 }

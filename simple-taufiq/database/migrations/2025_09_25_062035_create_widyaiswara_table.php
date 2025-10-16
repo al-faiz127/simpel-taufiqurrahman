@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('widyaiswara', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->string('nip')->unique();
-            $table->string('nama');
-            $table->string('satker');
-            $table->string('telpon');
-            $table->string('email')->unique();
-            $table->string('alamat');
+            $table->string('nip')->unique()->nullable();
+            $table->string('nama')->nullable();
+            $table->string('satker')->nullable();
+            $table->string('telpon')->nullable();
+            $table->string('email')->unique()->nullable();
+            $table->string('alamat')->nullable();
             $table->timestamps();
         });
     }

@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('instansi', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->string('nama');
-            $table->text('alamat');
-            $table->string('telepon');
+            $table->string('nama')->nullable();
+            $table->text('alamat')->nullable();
+            $table->string('telepon')->nullable();
             $table->string('email')->unique();
-            $table->string('website');
+            $table->string('website')->nullable();
             $table->timestamps();
         });
     }

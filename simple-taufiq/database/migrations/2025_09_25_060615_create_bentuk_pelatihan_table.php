@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('bentuk_pelatihan', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->string('jalur');
-            $table->string('bentuk');
-            $table->text('deskripsi');
+            $table->string('jalur')->nullable();
+            $table->string('bentuk')->nullable();
+            $table->text('deskripsi')->nullable();
             $table->timestamps();
         });
     }

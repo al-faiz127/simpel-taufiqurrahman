@@ -37,26 +37,23 @@ class InstansiResource extends Resource
                     ->required(),
 
                 // 3. Bagian Kontak - Menggunakan Fieldset agar mirip tampilan modal yang ringkas
-                Forms\Components\Fieldset::make('Kontak') 
+                Forms\Components\Fieldset::make('Kontak')
                     ->schema([
                         // Input Telepon
                         Forms\Components\TextInput::make('telepon')
                             ->label('Telepon')
                             ->tel()
-                            ->numeric()
-                            ->required(),
+                            ->numeric(),
 
                         // Input Email
                         Forms\Components\TextInput::make('email')
                             ->label('Email')
                             ->email()
-                            ->required()
-                            ->unique(ignoreRecord: true, table: 'instansi'), 
+                            ->unique(ignoreRecord: true, table: 'instansi'),
 
                         Forms\Components\TextInput::make('website')
                             ->label('Website')
                             ->url()
-                            ->required()
                             ->suffixIcon('heroicon-o-globe-alt'),
                     ])
                     ->columns(1),
@@ -65,7 +62,7 @@ class InstansiResource extends Resource
     }
 
     public static function table(Table $table): Table
-{
+    {
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('no')
@@ -73,55 +70,52 @@ class InstansiResource extends Resource
                     ->rowIndex(),
                 Tables\Columns\TextColumn::make('nama')
                     ->label('Nama')
-                    ->description(fn ($record) => $record->alamat ? 'Alamat: ' . $record->alamat : 'Alamat: -') 
+                    ->description(fn($record) => $record->alamat ? 'Alamat: ' . $record->alamat : 'Alamat: -')
                     ->searchable()
                     ->sortable()
                     ->grow(),
 
                 Tables\Columns\TextColumn::make('kontak')
-        ->label('Kontak')
-        ->getStateUsing(function ($record) {
-            $kontak = [];
+                    ->label('Kontak')
+                    ->getStateUsing(function ($record) {
+                        $notlpn = $record->telepon ?: '-';
+                        $email = $record->email ?: '-';
+                        $web = $record->website ?: '-';
+                        return
+                            "<div>
+                            <div>No. Telepon : <span class=\"text-xs text-gray-500\">{$notlpn}</span></div> 
+                            <div>Email : <span class=\"text-xs text-gray-500\">{$email}</span></div>
+                             <div>Website : <span class=\"text-xs text-gray-500\">{$web}</span></div>
+                            </div>";
 
-            if ($record->telepon) {
-                $kontak[] = "<span class=\"text-xs\"> No Tlp:</span> <span class=\"text-xs text-gray-500\">  {$record->telepon} </span>";
-            }
 
-            if ($record->email) {
-                $kontak[] = "<span class=\"text-xs\"> Email:</span> <span class=\"text-xs text-gray-500\">  {$record->email} </span>";
-            }
 
-            if ($record->website) {
-                $kontak[] = "<span class=\"text-xs\"> Website:</span> <span class=\"text-xs text-gray-500\">  {$record->website} </span>";
-            }
+                        return implode('<br>', $kontak);
+                    })
+                    ->html()
+                    ->wrap(false)
+                    ->alignment('left')
+                    ->width('300px'),
 
-            
-            return implode('<br>', $kontak);
-        })
-        ->html()       
-        ->wrap(false)
-        ->alignment('left')
-        ->width('300px'),
-
-        ])
-        ->filters([])
-        ->actions([
-            Tables\Actions\ActionGroup::make([
-                Tables\Actions\EditAction::make()
-                    ->label('Edit')
-                    ->modalWidth('lg'),
-                Tables\Actions\DeleteAction::make()
-                    ->label('Hapus')
-                    ->modalWidth('md')
-                    ->requiresConfirmation(),
-            ]),
-        ])
-        ->bulkActions([
-            Tables\Actions\BulkActionGroup::make([
-                Tables\Actions\DeleteBulkAction::make(),
-            ]),
-        ]);
-}
+            ])
+            ->filters([])
+            ->actions([
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make()
+                        ->label('Edit')
+                        ->modalWidth('lg'),
+                    Tables\Actions\DeleteAction::make()
+                        ->label('Hapus')
+                        ->modalWidth('md')
+                        ->requiresConfirmation(),
+                ]),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ]);
+    }
 
 
 

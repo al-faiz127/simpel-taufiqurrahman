@@ -14,6 +14,9 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Wizard;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Illuminate\Support\HtmlString;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,6 +25,7 @@ use Filament\Forms\Components\TextInput;
 use GuzzleHttp\Psr7\FnStream;
 use Awcodes\TableRepeater\Components\TableRepeater;
 use Awcodes\TableRepeater\Header;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
 use Filament\Notifications\Notification;
 
@@ -29,7 +33,7 @@ class BangkomResource extends Resource
 {
     protected static ?string $model = Bangkom::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
 
     protected static ?string $navigationLabel = 'Bangkom';
 
@@ -212,7 +216,8 @@ class BangkomResource extends Resource
                     ->searchable(),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('status')
+                    ->options(BangkomStatus::class)
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
@@ -291,27 +296,37 @@ class BangkomResource extends Resource
 
                             $record->update([
                                 'status' => $newStatus,
-                                // 'catatan' => $data['catatan'],
+                                'catatan' => $data['catatan'],
                             ]);
 
-                            // \App\Models\HistoriStatus::where('bangkom_id', $record->id)
-                            //     ->where('catatan', 'Pengajuan Permohonan')
-                            //     ->first();
 
-                            // $record->historiStatuses()->create([
-                            //     'users_id' => Auth::id(),
-                            //     'oleh' => Auth::user()->name,
-                            //     'status_sebelum' => $oldStatus->value,
-                            //     'status_menjadi' => $newStatus->value,
-                            //     'catatan' => 'Pengajuan Permohonan',
-                            // ]);
+                            $record->histori()->create([
+                                'users_id' => Auth::id(),
+                                'oleh' => Auth::user()->name,
+                                'sebelum' => $oldStatus->value,
+                                'sesudah' => $newStatus->value,
+                                'catatan' => '-',
+                            ]);
                             Notification::make()
                                 ->title('Status berhasil diubah')
                                 ->body("Status diubah dari {$oldStatus->getLabel()} menjadi {$newStatus->getLabel()}")
                                 ->success()
                                 ->send();
                         }),
+                    Tables\Actions\Action::make('historiStatus')
+                        ->label('Histori Status')
+                        ->icon('heroicon-o-clock')
+                        ->color('gray')
+                        ->modalHeading('Histori Status')
+                        ->modalContent(fn(Model $record) => new HtmlString(Blade::render(<<<'BLADE'
+                        <livewire:modal.histori-table :bangkom="$bangkom" />
+                        BLADE, [
+                            'bangkom' => $record,
+                        ])))
+                        ->modalSubmitAction(false)
+                        ->modalCancelActionLabel('Tutup'),
                     Tables\Actions\Action::make('forceDelete')
+                    
                         ->label('Force Delete')
                         ->icon('heroicon-o-trash')
                         ->color('danger')

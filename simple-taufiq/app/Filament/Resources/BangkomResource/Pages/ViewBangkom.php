@@ -128,7 +128,6 @@ class ViewBangkom extends ViewRecord
                     ->schema([
                         
                         Repeater::make('kurikulum')
-                        ->default([])
                             ->schema([
                                 TextInput::make('narasumber')
                                     ->disabled(),

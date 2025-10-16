@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('jenis_pelatihan', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->string('jenis');
-            $table->text('deskripsi');
+            $table->string('jenis')->nullable();
+            $table->text('deskripsi')->nullable();
             $table->timestamps();
         });
     }
