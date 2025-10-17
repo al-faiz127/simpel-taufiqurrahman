@@ -45,13 +45,11 @@ class HistoriTable extends Component implements HasForms, HasTable
                 Tables\Columns\TextColumn::make('sebelum')
                     ->label('Status Sebelum')
                     ->badge()
-                    // PERBAIKAN: Hapus BangkomStatus::from() karena $state sudah berupa objek Enum
                     ->color(fn(BangkomStatus $state) => $state->getColor())
                     ->icon(fn(BangkomStatus $state) => $state->getIcon()),
                 Tables\Columns\TextColumn::make('sesudah')
                     ->label('Status Menjadi')
                     ->badge()
-                    // PERBAIKAN: Hapus BangkomStatus::from() karena $state sudah berupa objek Enum
                     ->color(fn(BangkomStatus $state) => $state->getColor())
                     ->icon(fn(BangkomStatus $state) => $state->getIcon()),
                 Tables\Columns\TextColumn::make('catatan')

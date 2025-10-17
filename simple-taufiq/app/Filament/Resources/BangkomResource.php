@@ -53,7 +53,7 @@ class BangkomResource extends Resource
                                 ->relationship(
                                     name: 'user',
                                     titleAttribute: 'name',
-                                    modifyQueryUsing: fn($query) =>$query
+                                    modifyQueryUsing: fn($query) => $query
                                         ->whereHas('roles', fn($q) => $q->where('name', 'pelaksana'))
                                         ->whereNotNull('verified_at')
                                 )
@@ -220,7 +220,16 @@ class BangkomResource extends Resource
                     ->options(BangkomStatus::class)
             ])
             ->actions([
+
                 Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('CetakPermohonan')
+                        ->label('Cetak Permohonan')
+                        ->icon('heroicon-o-printer')
+                        ->color('warning')
+                        ->url(fn($record) => route('bangkom.permohonan', $record))
+                        ->openUrlInNewTab(), 
+
+
                     Tables\Actions\Action::make('DokumenPermohonan')
                         ->label('Dokumen Permohonan')
                         ->icon('heroicon-o-document')
@@ -326,7 +335,7 @@ class BangkomResource extends Resource
                         ->modalSubmitAction(false)
                         ->modalCancelActionLabel('Tutup'),
                     Tables\Actions\Action::make('forceDelete')
-                    
+
                         ->label('Force Delete')
                         ->icon('heroicon-o-trash')
                         ->color('danger')
@@ -342,7 +351,7 @@ class BangkomResource extends Resource
                                 ->success()
                                 ->send();
                         }),
-                        Tables\Actions\ViewAction::make(),
+                    Tables\Actions\ViewAction::make(),
 
                 ]),
 
