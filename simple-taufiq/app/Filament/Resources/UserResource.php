@@ -70,8 +70,12 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')->label('Nama')->sortable()->searchable(),
-                Tables\Columns\TextColumn::make('email')->label('Email')->sortable()->searchable(),
-                Tables\Columns\TextColumn::make('username')->label('Username')->sortable()->searchable(),
+                Tables\Columns\TextColumn::make('email')->label('Email')->sortable()->searchable()->unique(ignoreRecord: true),
+                Tables\Columns\TextColumn::make('username')
+                    ->label('Username')
+                    ->sortable()
+                    ->searchable()
+                    ->unique(ignoreRecord: true),
                 Tables\Columns\TextColumn::make('phone')->label('No Telepon/ Wa aktif')->sortable()->searchable(),
                 Tables\Columns\TextColumn::make('roles.name')
                     ->label('Role')
@@ -135,7 +139,7 @@ class UserResource extends Resource
                     Tables\Actions\EditAction::make()
                         ->color('gray'),
                     Tables\Actions\DeleteAction::make(),
-                    ]),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

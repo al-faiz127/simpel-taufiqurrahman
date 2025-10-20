@@ -4,9 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\BangkomResource\Pages;
 use App\Enums\BangkomStatus;
-use App\Filament\Resources\BangkomResource\RelationManagers;
 use App\Models\Bangkom;
-use Doctrine\DBAL\Schema\Schema;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -19,27 +17,21 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Forms\Components\TextInput;
-use GuzzleHttp\Psr7\FnStream;
-use Awcodes\TableRepeater\Components\TableRepeater;
-use Awcodes\TableRepeater\Header;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
+use Filament\Forms\Components\TextInput;
+use Awcodes\TableRepeater\Components\TableRepeater;
+use Awcodes\TableRepeater\Header;
 use Filament\Notifications\Notification;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class BangkomResource extends Resource
 {
     protected static ?string $model = Bangkom::class;
-
     protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
-
     protected static ?string $navigationLabel = 'Bangkom';
-
     protected static ?string $pluralLabel = 'Bangkom';
-
-    protected static ?string $slug = "Bangkom";
+    protected static ?string $slug = 'Bangkom';
 
     public static function form(Form $form): Form
     {
@@ -49,7 +41,7 @@ class BangkomResource extends Resource
                     Wizard\Step::make('kegiatan')
                         ->schema([
                             Select::make('user_id')
-                                ->label('Pelaksana')
+                                ->label('Penngelola')
                                 ->relationship(
                                     name: 'user',
                                     titleAttribute: 'name',
@@ -91,22 +83,24 @@ class BangkomResource extends Resource
                                 ->searchable()
                                 ->preload()
                                 ->required(),
-                        ]),
-                    Wizard\Step::make('Waktu,Tempat dan Kuota')
+                        ])
+                        ->columnSpanFull()
+                        ->inlineLabel(),
+                    Wizard\Step::make('Waktu, Tempat dan Kuota')
                         ->schema([
                             DatePicker::make('mulai')
-                                ->label('tanggal mulai')
+                                ->label('Tanggal Mulai')
                                 ->required()
                                 ->displayFormat('d/m/y')
                                 ->minDate(now())
-                                ->suffixicon('heroicon-o-calendar')
+                                ->suffixIcon('heroicon-o-calendar')
                                 ->native(false),
                             DatePicker::make('selesai')
-                                ->label('tanggal selesai')
+                                ->label('Tanggal Selesai')
                                 ->required()
                                 ->displayFormat('d/m/y')
                                 ->minDate(now())
-                                ->suffixicon('heroicon-o-calendar')
+                                ->suffixIcon('heroicon-o-calendar')
                                 ->native(false),
                             TextInput::make('tempat')
                                 ->label('Tempat')
@@ -120,8 +114,10 @@ class BangkomResource extends Resource
                                 ->numeric()
                                 ->required()
                                 ->suffixIcon('heroicon-o-users'),
-                        ]),
-                    Wizard\Step::make('panitia')
+                        ])
+                        ->columnSpanFull()
+                        ->inlineLabel(),
+                    Wizard\Step::make('Panitia')
                         ->schema([
                             TextInput::make('panitia')
                                 ->label('Nama Panitia')
@@ -131,33 +127,26 @@ class BangkomResource extends Resource
                                 ->label('Telepon Panitia')
                                 ->required()
                                 ->tel(),
-                        ]),
-                    Wizard\Step::make('kurikulum')
+                        ])
+                        ->columnSpanFull()
+                        ->inlineLabel(),
+                    Wizard\Step::make('Kurikulum')
                         ->schema([
                             TableRepeater::make('kurikulum')
                                 ->headers([
-                                    Header::make('narasumber')->label('Nararumber'),
+                                    Header::make('narasumber')->label('Narasumber'),
                                     Header::make('materi')->label('Materi'),
                                     Header::make('jam')->label('Jam Pelajaran'),
-
                                 ])
                                 ->schema([
-                                    TextInput::make('narasumber')
-                                        ->placeholder('isi narasumber')
-                                        ->required()
-                                        ->columnSpan(1),
-                                    TextInput::make('materi')
-                                        ->placeholder('isi materi')
-                                        ->required()
-                                        ->columnSpan(1),
-                                    TextInput::make('jam')
-                                        ->placeholder('isi jam pelajaran')
-                                        ->numeric(),
+                                    TextInput::make('narasumber')->required(),
+                                    TextInput::make('materi')->required(),
+                                    TextInput::make('jam')->numeric(),
                                 ])
-
-                                ->addActionLabel('tambah kurikulum'),
-                        ]),
-                    Wizard\Step::make('Deskripsi, Kegiatan Dan Persyaratan')
+                                ->addActionLabel('Tambah Kurikulum'),
+                                ]),
+                        
+                    Wizard\Step::make('Deskripsi dan Persyaratan')
                         ->schema([
                             TextInput::make('deskripsi')
                                 ->label('Deskripsi Kegiatan')
@@ -165,10 +154,11 @@ class BangkomResource extends Resource
                             TextInput::make('persyaratan')
                                 ->label('Persyaratan Peserta')
                                 ->required(),
-                        ]),
-
+                        ])
+                        ->columnSpanFull()
+                        ->inlineLabel(),
                 ])
-                    ->submitAction(new \Illuminate\Support\HtmlString('
+                    ->submitAction(new HtmlString('
                         <button 
                             type="submit" 
                             wire:click="create"
@@ -186,53 +176,38 @@ class BangkomResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('no')
-                    ->label('No')
-                    ->rowIndex(),
-                tables\Columns\TextColumn::make('kegiatan')
-                    ->label('Nama Kegiatan'),
-                tables\Columns\TextColumn::make('jenis_pelatihan.jenis')
-                    ->label('Jenis Pelatihan'),
-                tables\Columns\TextColumn::make('mulai')
-                    ->label('tanggal pelatihan')
+                Tables\Columns\TextColumn::make('no')->label('No')->rowIndex(),
+                Tables\Columns\TextColumn::make('kegiatan')->label('Nama Kegiatan'),
+                Tables\Columns\TextColumn::make('jenis_pelatihan.jenis')->label('Jenis Pelatihan'),
+                Tables\Columns\TextColumn::make('mulai')
+                    ->label('Tanggal Pelatihan')
                     ->formatStateUsing(function ($record) {
-                        if (!$record->mulai || !$record->selesai) {
-                            return "-";
-                        }
-
-                        $mulai = Carbon::parse($record->mulai)->translatedFormat("d M");
-                        $akhir = Carbon::parse($record->selesai)->translatedFormat("d M");
-
-                        return "$mulai<small> <span class='text-gray-500 text-sm'>s/d</span> </small> $akhir";
+                        if (!$record->mulai || !$record->selesai) return '-';
+                        $mulai = Carbon::parse($record->mulai)->translatedFormat('d M');
+                        $selesai = Carbon::parse($record->selesai)->translatedFormat('d M');
+                        return "$mulai <small><span class='text-gray-500 text-sm'>s/d</span></small> $selesai";
                     })
                     ->html(),
-                tables\Columns\TextColumn::make('kuota')
-                    ->label('Kuota'),
-                tables\Columns\TextColumn::make('status')
+                Tables\Columns\TextColumn::make('kuota')->label('Kuota'),
+                Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->badge()
                     ->color(fn($state) => $state instanceof BangkomStatus ? $state->getColor() : BangkomStatus::from($state)->getColor())
                     ->icon(fn($state) => $state instanceof BangkomStatus ? $state->getIcon() : BangkomStatus::from($state)->getIcon())
                     ->searchable(),
             ])
-            ->filters([
-                Tables\Filters\SelectFilter::make('status')
-                    ->options(BangkomStatus::class)
-            ])
-            ->actions([
+             ->actions([
+            Tables\Actions\ActionGroup::make([
+                Tables\Actions\Action::make('CetakPermohonan')
+                    ->label('Cetak Permohonan')
+                    ->icon('heroicon-o-printer')
+                    ->color('warning')
+                    ->url(fn($record) => route('bangkom.permohonan', $record))
+                    ->openUrlInNewTab(false),
 
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\Action::make('CetakPermohonan')
-                        ->label('Cetak Permohonan')
-                        ->icon('heroicon-o-printer')
-                        ->color('warning')
-                        ->url(fn($record) => route('bangkom.permohonan', $record))
-                        ->openUrlInNewTab(), 
-
-
-                    Tables\Actions\Action::make('DokumenPermohonan')
-                        ->label('Dokumen Permohonan')
-                        ->icon('heroicon-o-document')
+                    Tables\Actions\Action::make('ajukanPermohonan')
+                        ->label('Ajukan Permohonan')
+                        ->icon('heroicon-o-paper-airplane')
                         ->color('gray')
                         ->modalHeading('Ajukan Permohonan')
                         ->form([
@@ -257,117 +232,148 @@ class BangkomResource extends Resource
                                 ->downloadable()
                                 ->openable()
                                 ->previewable(),
+
+                            Forms\Components\Checkbox::make('persetujuan')
+                                ->label('Dengan ini saya menyetujui bahwa data yang saya isi adalah benar dan dapat dipercaya.')
+                                ->required()
+                                ->accepted()
+                                ->validationMessages([
+                                    'accepted' => 'Anda harus menyetujui pernyataan ini untuk melanjutkan.',
+                                ]),
                         ])
-                        ->modalSubmitAction(false)
+                        ->modalSubmitActionLabel('Submit')
                         ->modalCancelActionLabel('Tutup')
-                        // ->visible(fn(Bangkom $record): bool => $record->status === BangkomStatus::Draft)
+                        ->visible(fn(Bangkom $record): bool => $record->status === BangkomStatus::Draft)
                         ->action(function (Bangkom $record, array $data) {
                             $record->update([
                                 'status' => BangkomStatus::MenungguVerifikasi,
                                 'file_permohonan' => $data['file_permohonan'],
                             ]);
                         }),
-                    Tables\Actions\EditAction::make()
-                        ->label('Edit')
-                        ->modalWidth('lg'),
-                    Tables\Actions\DeleteAction::make()
-                        ->label('Hapus')
-                        ->modalWidth('md')
-                        ->requiresConfirmation(),
-                    Tables\Actions\Action::make('ubahStatus')
-                        ->label('Ubah Status')
-                        ->icon('heroicon-o-arrow-path')
-                        ->modalHeading('Ubah Status')
-                        ->modalDescription('Are you sure you would like to do this?')
-                        ->form([
-                            Forms\Components\Select::make('status')
-                                ->label('Status')
-                                ->options([
-                                    BangkomStatus::Draft->value => 'draft',
-                                    BangkomStatus::MenungguVerifikasi->value => 'Menunggu Verifikasi I',
-                                    BangkomStatus::Pengelolaan->value => 'Pengolalaan',
-                                    BangkomStatus::MenungguVerifikasiII->value => 'Menunggu Verifikasi II',
-                                    BangkomStatus::TerbitSTTP->value => 'Terbit STTP',
-                                ])
-                                ->default(fn(Bangkom $record): string => $record->status->value)
-                                ->required()
-                                ->native(false)
-                                ->selectablePlaceholder(false),
-                            Forms\Components\Textarea::make('catatan')
-                                ->label('Catatan')
-                                ->rows(3)
-                                ->helperText('Conton Permintaan perbaikan usulan dan operator.'),
-                        ])
-                        ->requiresConfirmation()
-                        ->action(function (Bangkom $record, array $data) {
-                            $oldStatus = $record->status;
-                            $newStatus = BangkomStatus::from($data['status']);
 
-                            $record->update([
-                                'status' => $newStatus,
-                                'catatan' => $data['catatan'],
-                            ]);
+                Tables\Actions\Action::make('DokumenPermohonan')
+                    ->label('Upload Permohonan')
+                    ->icon('heroicon-o-document')
+                    ->color('gray')
+                    ->modalHeading('Ajukan Permohonan')
+                    ->form([
+                        Forms\Components\FileUpload::make('file_permohonan')
+                            ->label('File Permohonan')
+                            ->required()
+                            ->acceptedFileTypes([
+                                'application/pdf',
+                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                                'image/jpeg',
+                                'image/png'
+                            ])
+                            ->maxSize(102400)
+                            ->helperText('*Maksimal 100MB. Format: PDF, DOCX, JPG, PNG.')
+                            ->directory('permohonan')
+                            ->visibility('private')
+                            ->downloadable()
+                            ->openable()
+                            ->previewable(),
+                    ])
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Tutup')
+                    ->action(function (\App\Models\Bangkom $record, array $data) {
+                        $record->update([
+                            'status' => \App\Enums\BangkomStatus::MenungguVerifikasi,
+                            'file_permohonan' => $data['file_permohonan'],
+                        ]);
+                    }),
 
+                Tables\Actions\EditAction::make()->label('Edit'),
+                Tables\Actions\ViewAction::make()->label('Lihat'),
+                Tables\Actions\DeleteAction::make()->label('Hapus')->requiresConfirmation(),
 
-                            $record->histori()->create([
-                                'users_id' => Auth::id(),
-                                'oleh' => Auth::user()->name,
-                                'sebelum' => $oldStatus->value,
-                                'sesudah' => $newStatus->value,
-                                'catatan' => '-',
-                            ]);
-                            Notification::make()
-                                ->title('Status berhasil diubah')
-                                ->body("Status diubah dari {$oldStatus->getLabel()} menjadi {$newStatus->getLabel()}")
-                                ->success()
-                                ->send();
-                        }),
-                    Tables\Actions\Action::make('historiStatus')
-                        ->label('Histori Status')
-                        ->icon('heroicon-o-clock')
-                        ->color('gray')
-                        ->modalHeading('Histori Status')
-                        ->modalContent(fn(Model $record) => new HtmlString(Blade::render(<<<'BLADE'
-                        <livewire:modal.histori-table :bangkom="$bangkom" />
-                        BLADE, [
-                            'bangkom' => $record,
-                        ])))
-                        ->modalSubmitAction(false)
-                        ->modalCancelActionLabel('Tutup'),
-                    Tables\Actions\Action::make('forceDelete')
+                // 🔹 Dimasukkan ke dalam ActionGroup
+                Tables\Actions\Action::make('ubahStatus')
+                    ->label('Ubah Status')
+                    ->icon('heroicon-o-arrow-path')
+                    ->modalHeading('Ubah Status')
+                    ->modalDescription('Apakah Anda yakin ingin mengubah status ini?')
+                    ->form([
+                        Forms\Components\Select::make('status')
+                            ->label('Status')
+                            ->options([
+                                \App\Enums\BangkomStatus::Draft->value => 'Draft',
+                                \App\Enums\BangkomStatus::MenungguVerifikasi->value => 'Menunggu Verifikasi I',
+                                \App\Enums\BangkomStatus::Pengelolaan->value => 'Pengelolaan',
+                                \App\Enums\BangkomStatus::MenungguVerifikasiII->value => 'Menunggu Verifikasi II',
+                                \App\Enums\BangkomStatus::TerbitSTTP->value => 'Terbit STTP',
+                            ])
+                            ->default(fn(\App\Models\Bangkom $record): string => $record->status->value)
+                            ->required()
+                            ->native(false),
+                        Forms\Components\Textarea::make('catatan')
+                            ->label('Catatan')
+                            ->rows(3)
+                            ->helperText('Contoh: Permintaan perbaikan usulan.'),
+                    ])
+                    ->requiresConfirmation()
+                    ->action(function (\App\Models\Bangkom $record, array $data) {
+                        $oldStatus = $record->status;
+                        $newStatus = \App\Enums\BangkomStatus::from($data['status']);
 
-                        ->label('Force Delete')
-                        ->icon('heroicon-o-trash')
-                        ->color('danger')
-                        ->requiresConfirmation()
-                        ->modalHeading('Hapus Permanen')
-                        ->modalDescription('Apakah Anda yakin ingin menghapus data ini secara permanen?')
-                        ->modalSubmitActionLabel('Ya, Hapus')
-                        ->action(function (Bangkom $record) {
-                            $record->forceDelete();
+                        $record->update([
+                            'status' => $newStatus,
+                            'catatan' => $data['catatan'],
+                        ]);
 
-                            Notification::make()
-                                ->title('Data berhasil dihapus permanen')
-                                ->success()
-                                ->send();
-                        }),
-                    Tables\Actions\ViewAction::make(),
+                        $record->histori()->create([
+                            'users_id' => \Illuminate\Support\Facades\Auth::id(),
+                            'oleh' => \Illuminate\Support\Facades\Auth::user()->name,
+                            'sebelum' => $oldStatus->value,
+                            'sesudah' => $newStatus->value,
+                            'catatan' => $data['catatan'] ?? '-',
+                        ]);
 
-                ]),
+                        \Filament\Notifications\Notification::make()
+                            ->title('Status berhasil diubah')
+                            ->body("Status diubah dari {$oldStatus->getLabel()} menjadi {$newStatus->getLabel()}")
+                            ->success()
+                            ->send();
+                    }),
 
+                Tables\Actions\Action::make('historiStatus')
+                    ->label('Histori Status')
+                    ->icon('heroicon-o-clock')
+                    ->color('gray')
+                    ->modalHeading('Histori Status')
+                    ->modalContent(fn(\Illuminate\Database\Eloquent\Model $record) => new \Illuminate\Support\HtmlString(
+                        \Illuminate\Support\Facades\Blade::render(<<<'BLADE'
+                            <livewire:modal.histori-table :bangkom="$bangkom" />
+                        BLADE, ['bangkom' => $record])
+                    ))
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Tutup'),
+
+                Tables\Actions\Action::make('forceDelete')
+                    ->label('Hapus Permanen')
+                    ->icon('heroicon-o-trash')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->modalHeading('Hapus Permanen')
+                    ->modalDescription('Apakah Anda yakin ingin menghapus data ini secara permanen?')
+                    ->modalSubmitActionLabel('Ya, Hapus')
+                    ->action(function (\App\Models\Bangkom $record) {
+                        $record->forceDelete();
+                        \Filament\Notifications\Notification::make()
+                            ->title('Data berhasil dihapus permanen')
+                            ->success()
+                            ->send();
+                    }),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
-    }
+            ->label('Aksi')
+            ->icon('heroicon-o-ellipsis-horizontal'),
+        ]);
+}
+
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+use Barryvdh\DomPDF\Facade\Pdf;
 
 
 class Bangkom extends Model
@@ -69,4 +70,15 @@ class Bangkom extends Model
     {
         return $this->hasMany(Histori::class);
     }
+    public function generatePermohonanPdf()
+{
+    $pdf = Pdf::loadView('pdf.permohonan', ['bangkom' => $this])
+        ->setPaper('a4', 'portrait');
+
+    $fileName = 'Permohonan-' . $this->id . '.pdf';
+    $path = storage_path('app/public/' . $fileName);
+
+    $pdf->save($path); // simpan ke storage sementara
+    return $path;
+}
 }
